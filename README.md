@@ -8,18 +8,20 @@ Running your own `micro-vsts` is a single [`now`](https://now.sh) command away:
 
 ```sh
 # Deploy this repository using now.sh
-now colbywhite/micro-vsts -e VSTS_CLIENT_ID=xyz123 -e VSTS_CLIENT_SECRET=asdf123 -e REDIRECT_URL=https://google.com
+now colbywhite/micro-vsts -e VSTS_CLIENT_ID=xyz123 -e VSTS_CLIENT_SECRET=asdf123 -e VSTS_SCOPES=vso.build vso.code vso.release -e REDIRECT_URL=https://google.com
 ```
 
 ### Environment variables
 
-You'll need to provide three environment variables when running `micro-vsts`:
+You'll need to provide four environment variables when running `micro-vsts`:
 
 ```sh
 # Your VSTS application client id
 VSTS_CLIENT_ID=xyz123
 # Your VSTS application client secret
 VSTS_CLIENT_SECRET=asdf123
+# Your space-separated list of scopes registered to your VSTS application
+VSTS_SCOPES=vso.build vso.code vso.release
 # The URL to redirect the user to once the authentication was successful
 REDIRECT_URL=https://google.com
 ```
