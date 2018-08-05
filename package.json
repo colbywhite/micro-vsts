@@ -1,0 +1,32 @@
+{
+  "name": "micro-vsts",
+  "version": "0.0.1",
+  "description": "A tiny microservice that makes adding authentication with VSTS to your application easy.",
+  "engines": {
+    "node": "8.11.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "micro",
+    "dev": "nodemon --exec \"npm start\" -e \"js\"",
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colbywhite/micro-vsts.git"
+  },
+  "author": "Colby M. White",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/colbywhite/micro-vsts/issues"
+  },
+  "homepage": "https://github.com/colbywhite/micro-vsts#readme",
+  "devDependencies": {
+    "nodemon": "1.18.3",
+    "standard": "11.0.1"
+  },
+  "dependencies": {
+    "micro": "9.3.2",
+    "microrouter": "3.1.3"
+  }
+}
