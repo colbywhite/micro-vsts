@@ -70,7 +70,10 @@ const callback = async (req, res) => {
   }
 }
 
+const refresh = (req, res) => 'Token refresh coming soon...'
+
 module.exports = router(
   get('/login', login),
-  get('/callback', callback)
+  get('/callback', callback),
+  get('/refresh', refresh)
 )
