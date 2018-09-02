@@ -16,6 +16,29 @@ const redirectWithQueryString = (res, data) => {
   redirect(res, 302, location)
 }
 
+const getVstsTokensAndRedirect = async (params, res) => {
+  try {
+    const {status, data} = await axios({
+      method: 'POST',
+      url: `https://${vstsUrl}/oauth2/token`,
+      data: querystring.stringify(params),
+      headers: {'content-type': 'application/x-www-form-urlencoded'}
+    })
+
+    if (status === 200) {
+      if (data.access_token && data.refresh_token) {
+        redirectWithQueryString(res, data)
+      } else {
+        redirectWithQueryString(res, {error: 'VSTS 200 response with missing tokens in response.'})
+      }
+    } else {
+      redirectWithQueryString(res, {error: 'VSTS non-200 response.', status: status})
+    }
+  } catch (err) {
+    redirectWithQueryString(res, {error: 'Please provide VSTS_CLIENT_ID and VSTS_CLIENT_SECRET as environment variables. (or VSTS might be down)'})
+  }
+}
+
 const login = async (req, res) => {
   const state = await uid(20)
   states.push(state)
@@ -47,30 +70,25 @@ const callback = async (req, res) => {
       assertion: code,
       redirect_uri: `https://${req.headers.host}/callback`
     }
-    try {
-      const { status, data } = await axios({
-        method: 'POST',
-        url: `https://${vstsUrl}/oauth2/token`,
-        data: querystring.stringify(params),
-        headers: { 'content-type': 'application/x-www-form-urlencoded' }
-      })
-
-      if (status === 200) {
-        if (data.access_token && data.refresh_token) {
-          redirectWithQueryString(res, data)
-        } else {
-          redirectWithQueryString(res, { error: 'VSTS 200 response with missing tokens in response.' })
-        }
-      } else {
-        redirectWithQueryString(res, { error: 'VSTS non-200 response.', status: status })
-      }
-    } catch (err) {
-      redirectWithQueryString(res, { error: 'Please provide VSTS_CLIENT_ID and VSTS_CLIENT_SECRET as environment variables. (or VSTS might be down)' })
-    }
+    await getVstsTokensAndRedirect(params, res)
   }
 }
 
-const refresh = (req, res) => 'Token refresh coming soon...'
+const refresh = async (req, res) => {
+  const {refreshToken} = req.query
+  if (!refreshToken) {
+    redirectWithQueryString(res, {error: 'Provide refreshToken query param'})
+  } else {
+    const params = {
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion: process.env.VSTS_CLIENT_SECRET,
+      grant_type: 'refresh_token',
+      assertion: refreshToken,
+      redirect_uri: `https://${req.headers.host}/callback`
+    }
+    await getVstsTokensAndRedirect(params, res)
+  }
+}
 
 module.exports = router(
   get('/login', login),
